@@ -7,7 +7,7 @@ from ..models import User
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm
+    form = NameForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
