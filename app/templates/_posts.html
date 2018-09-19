@@ -12,14 +12,18 @@
             <div class="post-author">
                 <a href="{{ url_for('.user', username=post.author.username) }}">
                     {{ post.author.username }}</a></div>
-            <div class="post-body">{{ post.body }}</div>
-        </di>
-        <div class="post-body">
-            {% if post.body_html %}        
-                {{ post.body_html | safe }} <!-- 渲染 HTML 格式内容时使用| safe 后缀，其目的是告诉 Jinja2 不要转义 HTML 元素。 -->
-            {% else %}
-                {{ post.body }}
-            {% endif %}
+            <div class="post-body">
+                {% if post.body_html %}        
+                    {{ post.body_html | safe }} <!-- 渲染 HTML 格式内容时使用| safe 后缀，其目的是告诉 Jinja2 不要转义 HTML 元素。 -->
+                {% else %}
+                    {{ post.body }}
+                {% endif %}
+            </div>
+            <div class="post-footer">
+                <a href="{{ url_for('.post', id=post.id) }}">
+                    <span class="label label-default">Permalink</span>
+                </a>
+            </div>
         </div>
     </li>
     {% endfor %}
