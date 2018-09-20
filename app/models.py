@@ -35,10 +35,10 @@ class Role(db.Model):
         roles = {
             'User': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],
             'Moderator': [Permission.FOLLOW, Permission.COMMENT,
-                        Permission.WRITE, Permission.MODERATE],
+                          Permission.WRITE, Permission.MODERATE],
             'Administrator': [Permission.FOLLOW, Permission.COMMENT,
-                        Permission.WRITE, Permission.MODERATE,
-                        Permission.ADMIN],
+                              Permission.WRITE, Permission.MODERATE,
+                              Permission.ADMIN],
         }
         default_role = 'User'
         for r in roles:
@@ -72,8 +72,10 @@ class Role(db.Model):
 
 class Follow(db.Model):
     __tablename__ = 'follows'
-    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    follower_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    followed_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -88,13 +90,13 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(64))
     location = db.Column(db.String(64))
     about_me = db.Column(db.Text())
-    member_since = db.Column(db.DateTime(), default=datetime.utcnow) # 注册日期
-    last_seen = db.Column(db.DateTime(), default=datetime.utcnow) # 最后访问日期
+    member_since = db.Column(db.DateTime(), default=datetime.utcnow)  # 注册日期
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)  # 最后访问日期
     avatar_hash = db.Column(db.String(32))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship('Follow', foreign_keys=[Follow.follower_id],
-                                backref=db.backref('follower', lazy='joined'),
-                                lazy='dynamic', cascade='all, delete-orphan')
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
     followers = db.relationship('Follow', foreign_keys=[Follow.followed_id],
                                 backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic', cascade='all, delete-orphan')
@@ -112,10 +114,10 @@ class User(UserMixin, db.Model):
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
-    
+
     @password.setter
     def password(self, password):
-        self.password_hash = generate_password_hash(password)    
+        self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -136,11 +138,10 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
-
     def generate_reset_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'reset': self.id}).decode('utf-8')
-         
+
     @staticmethod
     def reset_password(token, new_password):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -219,7 +220,10 @@ class User(UserMixin, db.Model):
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
 
-
+    @property
+    def followed_posts(self):
+        return Post.query.join(Follow, Follow.followed_id == Post.author_id)\
+               .filter(Follow.follower_id == self.id)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -232,7 +236,9 @@ class AnonymousUser(AnonymousUserMixin):
     def is_administrator(self):
         return False
 
+
 login_manager.anonymous_user = AnonymousUser
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -256,12 +262,5 @@ class Post(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
+
 db.event.listen(Post.body, 'set', Post.on_changed_body)
-
-
-
-
-
-
-   
-        
