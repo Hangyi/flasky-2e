@@ -1,4 +1,4 @@
-from flask import Flask, render_template 
+from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
 from flask_moment import Moment
@@ -12,8 +12,9 @@ mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login' # login_view 属性设置登录页面的端点。
+login_manager.login_view = 'auth.login'  # login_view 属性设置登录页面的端点。
 pagedown = PageDown()
+
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -33,5 +34,8 @@ def create_app(config_name):
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
-    # attach routes and custom error pages here
+    from .api import api as api_blueprint
+    app.register_blueprint(api_blueprint, url_prefix='/api/v1')
+
+    #  attach routes and custom error pages here
     return app
