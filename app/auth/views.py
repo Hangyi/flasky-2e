@@ -10,10 +10,10 @@ from ..email import send_email
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm() # 创建一个LoginForm对象
-    if form.validate_on_submit(): # validate_on_submit()函数会验证表单数据
+    form = LoginForm()  # 创建一个LoginForm对象
+    if form.validate_on_submit():  # validate_on_submit()函数会验证表单数据
         # 使用表单中填写的email从数据库中加载用户
-        user = User.query.filter_by(email=form.email.data).first() 
+        user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             next = request.args.get('next')
@@ -43,7 +43,7 @@ def register():
         db.session.commit()
         token = user.generate_confirmation_token()
         send_email(user.email, 'Confirm Your Account',
-                    'auth/email/confirm', user=user, token=token)
+                   'auth/email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('main.index'))
     return render_template('auth/register.html', form=form)
@@ -56,7 +56,7 @@ def confirm(token):
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         db.session.commit()
-        flash('You have confirmed your accout. Thanks!')
+        flash('You have confirmed your account. Thanks!')
     else:
         flash('The confirmation link is Invalid or has expired.')
     return redirect(url_for('main.index'))
@@ -64,7 +64,7 @@ def confirm(token):
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated: 
+    if current_user.is_authenticated:
         current_user.ping()
         if not current_user.confirmed \
                 and request.blueprint != 'auth' \
@@ -84,7 +84,7 @@ def unconfirmed():
 def resend_confirmation():
     token = current_user.generate_confirmation_token()
     send_email(current_user.email, 'Confirm Your Account',
-                'auth/email/confirm', user=current_user, token=token)
+               'auth/email/confirm', user=current_user, token=token)
     flash('A new confirmation email has been sent to you by email.')
     return redirect(url_for('main.index'))
 
@@ -105,7 +105,7 @@ def change_password():
     return render_template("auth/change_password.html", form=form)
 
 
-@auth.route('/reset', methods=['GET','POST'])
+@auth.route('/reset', methods=['GET', 'POST'])
 def password_reset_request():
     if not current_user.is_anonymous:
         return redirect(url_for('main.index'))
@@ -115,7 +115,7 @@ def password_reset_request():
         if user:
             token = user.generate_reset_token()
             send_email(user.email, 'Reset Your Password',
-                        'auth/email/reset_password', user=user, token=token)
+                       'auth/email/reset_password', user=user, token=token)
         flash('An email with instructions to reset your password has been sent to you.')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
