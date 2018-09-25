@@ -347,7 +347,7 @@ class Comment(db.Model):
             'url': url_for('api.get_comment', id=self.id),
             'post_url': url_for('api.get_post', id=self.post_id),
             'body': self.body,
-            'body.html': self.body_html,
+            'body_html': self.body_html,
             'timestamp': self.timestamp,
             'author_url': url_for('api.get_user', id=self.author_id),
         }
