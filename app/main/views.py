@@ -7,6 +7,18 @@ from .. import db
 from ..models import User, Role, Permission, Post, Comment
 from flask_login import login_required, current_user
 from ..decorators import admin_required, permission_required
+from flask_sqlalchemy import get_debug_queries
+
+
+@main.after_app_request
+def after_request(response):
+    for query in get_debug_queries():
+        if query.duration >= current_app.config['FLAKSY_SLOW_DB_QUERY_TIME']:
+            current_app.logger.warning(
+                'Slow query: %s\nParameters: %s\nDuration: %fs\nContext: %s\n'
+                % (query.statement, query.parameters, query.duration,
+                   query.context))
+    return response
 
 
 @main.route('/', methods=['GET', 'POST'])
