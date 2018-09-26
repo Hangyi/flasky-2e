@@ -20,6 +20,7 @@ class Config:
     WTF_CSRF_ENABLED = False
     FLASKY_SLOW_DB_QUERY_TIME = 0.5
 
+
     @staticmethod
     def init_app(app):
         pass
