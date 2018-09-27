@@ -19,6 +19,7 @@ class Config:
     FLASKY_COMMENTS_PER_PAGE = 30
     WTF_CSRF_ENABLED = False
     FLASKY_SLOW_DB_QUERY_TIME = 0.5
+    SSL_REDIRECT = False
 
     @staticmethod
     def init_app(app):
@@ -65,10 +66,30 @@ class ProductionConfig(Config):
         app.logger.addHandler(mail_handler)
 
 
+class HeroKuConfig(ProductionConfig):
+    SSL_REDIRECT = True if os.environ.get('DYNO') else False
+
+    @classmethod
+    def init_app(cls, app):
+        ProductionConfig.init_app(app)
+
+        # 处理反向代理服务器设定的首部
+        from werkzeug.contrib.fixers import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app)
+
+        # 输出到 stderr
+        import logging
+        from logging import StreamHandler
+        file_handler = StreamHandler()
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
+    'heroku': HeroKuConfig,
 
     'default': DevelopmentConfig
 }
