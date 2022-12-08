@@ -1,5 +1,5 @@
 -r common.txt
-certifi==2017.7.27.1
+certifi==2022.12.7
 chardet==3.0.4
 faker==0.7.18
 httpie==0.9.9
